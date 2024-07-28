@@ -31,6 +31,11 @@ class PerceptronClassifier:
         assert len(weights) == len(self.legalLabels)
         self.weights = weights
 
+
+
+
+
+
     def train( self, trainingData, trainingLabels, validationData, validationLabels ):
         """
         The training loop for the perceptron passes through the training data several
@@ -49,17 +54,41 @@ class PerceptronClassifier:
         for iteration in range(self.max_iterations):
             print("Starting iteration ", iteration, "...")
             for i in range(len(trainingData)):
+
                 "*** YOUR CODE HERE ***"
-                util.raiseNotDefined()
-                #compute score for each label:
+                #util.raiseNotDefined()
+
+                # compute score for each label:
+                # gotta turn it into a list ahfoiwahfpdfew9fow it kept crashing
+                # cuz I was sending a giant util.Counter()
+                # instead of a list of util.Counter()s
+                guessedScores = self.classify([trainingData[i]])
 
                 #find the most optimum label:
+                # using this formula:
+                # y′ = arg max_y’’ score(f, y′′)
 
+                # guessedScores should just be a normal list
+                # of the max scores for each label/data within that index
+                y_prime = max(guessedScores)
 
                 #update weight if necessary:
-
+                # compare y' to y, if y' == y, then it's correct!
+                # if it isn't, then we need to update something since we were
+                # supposed to guess y, but we got y' instead.
+                y = trainingLabels[i]
+                f = trainingData[i]
+                if y_prime != y:
+                    # update the weight at that y
+                    # wy = wy + f
+                    self.weights[y] += f
+                    # wy' = wy' - f
+                    self.weights[y_prime] -= f
 
         print("finished training")
+
+
+
 
 
 
@@ -73,9 +102,27 @@ class PerceptronClassifier:
         guesses = []
       
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #util.raiseNotDefined()
 
+        # classify performs this formula for every piece of data
+        # and for every legal label
+        # score(f, y) = ∑_i {f_i * wy_i}
+        for current_f in data:
+            score = util.Counter()
+
+            # get the current score for every label
+            for label in self.legalLabels:
+                score[label] = current_f * self.weights[label]
+
+            # append the max score for the current datum to our guess
+            guesses.append(score.argMax())
+            
+        # should return a list of max scores for every iteration in data
         return guesses
+
+
+
+
 
 
     def findHighWeightFeatures(self, label):
@@ -85,6 +132,13 @@ class PerceptronClassifier:
         featuresWeights = []
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #util.raiseNotDefined()
 
+        # sort them from highest to lowest
+        featuresWeights = self.weights[label].sortedKeys()
+
+        # limit the list to just the first 100 labels
+        featuresWeights = featuresWeights[:100]
+
+        # should now be a list in decending order of the first 100 greatest keys
         return featuresWeights
