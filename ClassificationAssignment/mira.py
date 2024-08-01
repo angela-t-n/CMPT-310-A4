@@ -50,6 +50,10 @@ class MiraClassifier:
 
         return self.trainAndTune(trainingData, trainingLabels, validationData, validationLabels, cGrid)
 
+
+
+
+
     def trainAndTune(self, trainingData, trainingLabels, validationData, validationLabels, cGrid):
         """
         This method sets self.weights using MIRA.  Train the classifier for each value of C in Cgrid,
@@ -70,6 +74,10 @@ class MiraClassifier:
 
         print("finished training. Best cGrid param = ", bestParams)
 
+
+
+
+
     def classify(self, data):
         """
         Classifies each datum as the label that most closely matches the prototype vector
@@ -78,9 +86,29 @@ class MiraClassifier:
         Recall that a datum is a util.counter...
         """
         guesses = []
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        "*** Y OUR CODE HERE ***"
+        #util.raiseNotDefined()
+
+        # tbh, probs the exact same anyway
+
+        # classify performs this formula for every piece of data
+        # and for every legal label
+        # score(f, y) = ∑_i {f_i * wy_i}
+        for current_f in data:
+            score = util.Counter()
+
+            # get the current score for every label
+            for label in self.legalLabels:
+                score[label] = current_f * self.weights[label]
+
+            # append the max score for the current datum to our guess
+            guesses.append(score.argMax())
+            
+        # should return a list of max scores for every iteration in data
         return guesses
+
+
+
 
 
     def findHighWeightFeatures(self, label):
@@ -89,7 +117,15 @@ class MiraClassifier:
         """
         featuresWeights = []
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        "*** Y OUR CODE HERE ***"
+        #util.raiseNotDefined()
 
+        # As said in the assignment, I can just copypaste it here.
+        # sort them from highest to lowest
+        featuresWeights = self.weights[label].sortedKeys()
+
+        # limit the list to just the first 100 labels
+        featuresWeights = featuresWeights[:100]
+
+        # should now be a list in decending order of the first 100 greatest keys
         return featuresWeights

@@ -55,7 +55,7 @@ class PerceptronClassifier:
             print("Starting iteration ", iteration, "...")
             for i in range(len(trainingData)):
 
-                "*** YOUR CODE HERE ***"
+                "*** Y OUR CODE HERE ***"
                 #util.raiseNotDefined()
 
                 # compute score for each label:
@@ -101,7 +101,7 @@ class PerceptronClassifier:
         """
         guesses = []
       
-        "*** YOUR CODE HERE ***"
+        "*** Y OUR CODE HERE ***"
         #util.raiseNotDefined()
 
         # classify performs this formula for every piece of data
@@ -131,7 +131,7 @@ class PerceptronClassifier:
         """
         featuresWeights = []
 
-        "*** YOUR CODE HERE ***"
+        "*** Y OUR CODE HERE ***"
         #util.raiseNotDefined()
 
         # sort them from highest to lowest
