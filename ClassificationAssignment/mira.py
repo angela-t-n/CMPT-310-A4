@@ -67,6 +67,9 @@ class MiraClassifier:
         "*** YOUR CODE HERE ***"
         #util.raiseNotDefined()
 
+        '''
+        # Breaking down w/e the assignment PDF is telling me
+
         # It seems to kinda start off similarish to perceptron where it applies the formula:
         # y′ = arg max_y’’ score(f, y′′)
         # but instead of scoring it up, they're just pairs of (f, y′′)?
@@ -87,73 +90,97 @@ class MiraClassifier:
         # and then just whatever the rest of the PDF is saying
         # τ must also be capped by the minimum of whatever the
         # previous formula was, and a positive constant of C
+        '''
 
         # prof provided
         bestAccuracyCount = -1  # best accuracy so far on validation set
         cGrid.sort(reverse=True)
         bestParams = cGrid[0]
 
+        bestCWeights = {}
         for currentCVal in cGrid:
-            # firstly, we need to 0 out the self.weights
-            weights = {}
-            for label in self.legalLabels:
-                weights[label] = util.Counter()
+            print("Running MIRA. Testing cGrid parameter:", currentCVal)
 
-            # once we have empty weights, we can then proceed to 
-            # iterate through as many iterations as needed per cGrid?
-            for _ in range(self.max_iterations):
+            # "Store the weights learned using the best value of C at the end in self.weights, so that these weights can be used to test your classifier."
+                # firstly, we need to 0 out the self.weights
+            self.weights = {}
+            for label in self.legalLabels:
+                self.weights[label] = util.Counter()
+
+            # "Pass through the data self.max_iterations times during training."
+                # once we have empty weights, we can then proceed to 
+                # iterate through as many iterations as needed per cGrid?
+            for iteration in range(self.max_iterations):
+                print("Starting iteration ", iteration, "...")
                 # and then for every iteration, we need to go through the training data
                 # similar in perceptron
-                for _ in range(len(trainingData)):
-                    # for each piece of training data, we need to find the feature for it
-                    f = trainingData[i]
-                    y = trainingLabels[i]
-
+                for i in range(len(trainingData)):
                     # calculate y' using the sameish technique as perceptron
                     # classify() should return a list of scores
                     guessedScore = self.classify([trainingData[i]])
                     # get the max score to determine y'
                     y_prime = max(guessedScore)
 
+                    # get the other variables
+                    y = trainingLabels[i]
+                    f = trainingData[i]
+
                     # check if y' != y
                     if y_prime != y:
                         # if that's the case, now we actually need to calculate backwards r
                         # τ = min(C, ( ((w_y' - w_y) * f + 1) / (2 * f^2) )
+                        equation = ((self.weights[y_prime] - self.weights[y]) * f + 1.0) / (2.0 * (f * f))
+                        backwards_r = min(currentCVal, equation)
 
-                        weightYPrime = weights[y_prime]
-                        weightY = weights[y]
-                        
-                        numerator = ((weightYPrime - weightY)) * f + 1.0
-                        denom = (2.0 * (f * f))
-
-                        eq = numerator / denom
-
-                        backwards_r = min(currentCVal, eq)
+                        # f is a util.counter() so we needa use the multiplyall() function
+                        # to multiply backwards_r to every number
+                        f.multiplyAll(backwards_r)
 
                         # now we can update the weights
-                        weights[y] += backwards_r * f
-                        weights[y_prime] -= backwards_r * f
-
-            # once the iteration is done, we can update self.weight
-            self.weights = weights
-
-            # now that the iteration is done, we can then compare it with some predictions
-            # made in the validationData set
+                        self.weights[y] += f
+                        self.weights[y_prime] -= f
 
             # "for each C and choose the C with the highest validation accuracy"
-            # "Evaluate accuracy, on the held-out validation set"
-            # "In case of ties, prefer the lowest value of C"
+                # now that the iteration is done, we can then compare it with some predictions
+                # made in the validationData set
+                # classify will use the self.weights we just modified with the validation data.
+            validationPredictions = self.classify(validationData)
+            currentAccuracyCount = 0
 
-            predictionFromValidation = self.classify(validationData)
+            # "Evaluate accuracy, on the held-out validation set"
+                # go through the validation labels and check if they equal each other
+                # if they do, tally them up
+            for i in range(len(validationLabels)):
+                if (validationLabels[i] == validationPredictions[i]):
+                    currentAccuracyCount += 1
+            print("CGrid parameter", currentCVal, "has accuracy count of:", currentAccuracyCount, ". Current best: ", bestAccuracyCount, '\n')
+
+            # "In case of ties, prefer the lowest value of C"
+            if currentAccuracyCount == bestAccuracyCount:
+                # if the currentC is lower, then store it
+                # Otherwise, keep the current best so far!
+                if currentCVal < bestParams:
+                    # update the accuracy count, best cvalue param, and best weights
+                    bestAccuracyCount = currentAccuracyCount
+                    bestParams = currentCVal
+                    bestCWeights = self.weights
+
+            # if this count is higher than the current bestAccuracyCount, then mark down this current c value as the best c
+            elif currentAccuracyCount > bestAccuracyCount:
+                # update the accuracy count, best cvalue param, and best weights
+                bestAccuracyCount = currentAccuracyCount
+                bestParams = currentCVal
+                bestCWeights = self.weights
+
+        # Once we're done checking every single c value, set self.weights to the best weight recorded
+        self.weights = bestCWeights
+
+        # and return the best c value
+        print("finished training. Best cGrid param = ", bestParams)
+        return bestParams
             
 
 
-
-
-
-
-
-        print("finished training. Best cGrid param = ", bestParams)
 
 
 
@@ -210,3 +237,4 @@ class MiraClassifier:
 
         # should now be a list in decending order of the first 100 greatest keys
         return featuresWeights
+ 
