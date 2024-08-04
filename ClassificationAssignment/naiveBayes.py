@@ -253,7 +253,7 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         logJoint = util.Counter()
 
         for label in self.legalLabels:
-            "*** YOUR CODE HERE, to populate logJoint() list ***"
+            "*** Y OUR CODE HERE, to populate logJoint() list ***"
             #util.raiseNotDefined()
 
             # idk what the hell this part is for, but I'm just practically

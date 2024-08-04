@@ -38,6 +38,12 @@ def basicFeatureExtractorDigit(datum):
                 features[(x,y)] = 0
     return features
 
+
+
+
+
+
+
 def enhancedFeatureExtractorDigit(datum):
     """
     Your feature extraction playground.
@@ -55,6 +61,12 @@ def enhancedFeatureExtractorDigit(datum):
     util.raiseNotDefined()
 
     return features
+
+
+
+
+
+
 
 
 def analysis(classifier, guesses, testLabels, testData, rawTestData, printImage):
