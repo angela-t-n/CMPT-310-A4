@@ -32,12 +32,17 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         """
         self.k = k
 
+
+
+
+
+
     def train(self, trainingData, trainingLabels, validationData, validationLabels):
         """
         Outside shell to call your method. Do not modify this method.
         """
 
-        # might be useful in your code later...
+        # might be useful in y our code later...
         # this is a list of all features in the training set.
         self.features = list(set([ f for datum in trainingData for f in datum.keys() ]))
 
@@ -47,6 +52,11 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
             kgrid = [self.k]
 
         self.trainAndTune(trainingData, trainingLabels, validationData, validationLabels, kgrid)
+
+
+
+
+
 
     def trainAndTune(self, trainingData, trainingLabels, validationData, validationLabels, kgrid):
         """
@@ -79,6 +89,15 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
             "*** YOUR CODE HERE to complete populating commonPrior, commonCounts, and commonConditionalProb ***"
             util.raiseNotDefined()
 
+            # basically referring to the lecture slide for this one
+            
+            # for the current training label, set the commonPrior to 1
+
+
+
+
+            
+
         for k in kgrid: # Smoothing parameter tuning loop!
             prior = util.Counter()
             conditionalProb = util.Counter()
@@ -97,6 +116,11 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
                 for feat in self.features:
                     "*** YOUR CODE HERE to update conditionalProb and counts using Lablace smoothing ***"
                     util.raiseNotDefined()
+
+
+
+
+
 
 
             # normalizing:
@@ -120,6 +144,9 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         self.prior, self.conditionalProb, self.k = bestParams
         print("Best Performance on validation set for k=%f: (%.1f%%)" % (self.k, 100.0 * bestAccuracyCount / len(validationLabels)))
 
+
+
+
     def classify(self, testData):
         """
         Classify the data based on the posterior distribution over labels.
@@ -132,6 +159,14 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
             guesses.append(posterior.argMax())
             self.posteriors.append(posterior)
         return guesses
+
+
+
+
+
+
+
+
 
     def calculateLogJointProbabilities(self, datum):
         """
@@ -147,7 +182,22 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         for label in self.legalLabels:
             "*** YOUR CODE HERE, to populate logJoint() list ***"
             util.raiseNotDefined()
+
+
+
+
+
+
+
         return logJoint
+
+
+
+
+
+
+
+
 
     def findHighOddsFeatures(self, label1, label2):
         """
@@ -160,5 +210,12 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
 
         "*** YOUR CODE HERE, to populate featureOdds based on above formula. ***"
         util.raiseNotDefined()
+
+
+
+
+
+
+
 
         return featuresOdds
