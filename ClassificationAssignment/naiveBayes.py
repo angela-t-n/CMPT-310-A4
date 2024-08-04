@@ -86,17 +86,74 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         for i in range(len(trainingData)):
             datum = trainingData[i]
             label = trainingLabels[i]
-            "*** YOUR CODE HERE to complete populating commonPrior, commonCounts, and commonConditionalProb ***"
-            util.raiseNotDefined()
+            "*** Y OUR CODE HERE to complete populating commonPrior, commonCounts, and commonConditionalProb ***"
+            #util.raiseNotDefined()
 
             # basically referring to the lecture slide for this one
+            # there's two things we need i think:
+                # estimation of P(label), how often does each label occur
+                # estimation of P("probability of every individual feature happening given a label existing") (P(F_i | label)), 
+                    # which is basically, bayes theorem describing how the label affects f in a list of features
             
-            # for the current training label, set the commonPrior to 1
+            # then, we need to calculate the classification
+            # to do so, we need to evaluate all the features possible, for a label as evidence
+            # we also need to query the probability of a label given all the possible features (P(label | f1, f2, ... fn))
+
+            # putting that together we somehow get this
+            # key = (label, feature_i)
+            # P(key) = P(Label) some weird symbol that stands for i? P(F_i | label)
+                # oh the weird symbol means chain rule
+            # which can be visually expanded into this giant list on slide 22
+
+            # that slide also breaks it down into the following steps:
+                # 1. get a joint probability of the label and evidence for each label
+                    # [P(y1| f1 to fn) ... P(yn| f1 to fn) 
+                
+                # 2. sum that all up?? which results in P(f1 to fn)???
+                
+                # 3. Normalize by dividing step 1 by step 2
+                    # results in P(label | f1 to fn)
+
+            # oh apparently that was all inference, as stated in slide 33.
+            # we then estimate it as:
+                # P(label), the "prior" over labels
+                # P(F_i | label) for each feature (evidence)
+
+                # collectively called parameters, and denoted as theta, and are typically from training data counts
+                # so if theta appears, i know what to do i guess???
 
 
 
 
             
+            # basically this is the part 1 portion
+
+            # tally the common probability over the current label
+            # the result of this will be the "how often each label occur" part i guess
+            commonPrior[label] += 1
+
+            # now, for every piece of data in the datum, 
+            # check if the feature at that specific data is greater than 0
+            # if so, tally it up into commonConditionalProb (indexed by feat, label as seen above)
+
+            for f, val in datum.items():
+                # essentially the P(F_i | Label) part
+                if val > 0:
+                    # tally since it has a positive datum at that feature
+                    commonConditionalProb[(f, label)] += 1
+
+                # and also tally up the fact that we visited this feature at our current label
+                commonCounts[((f, label))] += 1
+
+
+            
+        # lapace estimate stuff from slide 43?
+        # basically, pretend we saw every outcome k more times than we actually did
+        # for every pixel in the grid
+        # explaination of why is on slide 40~41
+
+        # essentially, for the existing count for that feature for that label
+        # add an extra k time to it
 
         for k in kgrid: # Smoothing parameter tuning loop!
             prior = util.Counter()
@@ -111,15 +168,24 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
             for key, val in commonConditionalProb.items():
                 conditionalProb[key] += val
 
+
+
+
             # smoothing:
             for label in self.legalLabels:
                 for feat in self.features:
-                    "*** YOUR CODE HERE to update conditionalProb and counts using Lablace smoothing ***"
-                    util.raiseNotDefined()
+                    "*** Y OUR CODE HERE to update conditionalProb and counts using Lablace smoothing ***"
+                    #util.raiseNotDefined()
+
+                    # just chuck an extra k times to it!
+                    counts[(feat, label)] += k
+
+                    # this one uses the lapace for conditionals on slide 44
+                    # just gonna overwrite the work done earlier lol
+                    conditionalProb[(feat, label)] = (commonConditionalProb[(feat, label)] + k) / (commonCounts[(feat, label)] + k)
 
 
-
-
+            #i guess now the following code is supposed to normalize it?
 
 
 
@@ -181,14 +247,31 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
 
         for label in self.legalLabels:
             "*** YOUR CODE HERE, to populate logJoint() list ***"
-            util.raiseNotDefined()
+            #util.raiseNotDefined()
 
+            # idk what the hell this part is for, but I'm just practically
+            # guessing from that comment above
+            # and chapter 6 of the textbook...
 
+            # essentially, for every label
+            # we are estimating the log probability, and storing it in the log-joint counter
+            estimateOfLog = 0
+            for f in self.features:
+                # check our datum for negatives, since we can't take the log of a negative value
+                if datum[f] > 0:
+                    # positive value, so we can just use it
+                    estimateOfLog = math.log(self.conditionalProb[(f,label)])
+                else:
+                    # negtive value, take the compliment and use that in our calculations that instead
+                    estimateOfLog = math.log(1 - self.conditionalProb[(f,label)])
 
+                # don't forget the probability over that label as well
+                estimateOfLog += math.log(self.prior[label])
 
+                # store the log estimate into the logJoint for this label
+                logJoint[label] = estimateOfLog
 
-
-
+        # returns a list of log estimates for every valid label
         return logJoint
 
 
@@ -208,14 +291,27 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         """
         featuresOdds = []
 
-        "*** YOUR CODE HERE, to populate featureOdds based on above formula. ***"
-        util.raiseNotDefined()
+        "*** Y OUR CODE HERE, to populate featureOdds based on above formula. ***"
+        #util.raiseNotDefined()
 
+        # using the common above, we're basically just dividing the conditional probability
+        # given the current feature in a list of features, and 2 seperate labels
+        for f in self.features:
+            probability = self.conditionalProb[(f, label1)] / self.conditionalProb[(f,label2)]
 
+            # append this for the current feature as a pair of (feature, resulting probability)
+            featuresOdds.append((f, probability))
 
+        # then, similar to previously, sort this from highest to lowest
+        # had to google this one since it's not a util thing, can't just sort keys using it's values
+        featuresOdds.sort(key=lambda pair: pair[1], reverse=True)
 
+        # return the top 100 features by removing the probabilities in the tuple pairs
+        # and making a list of just the keys
+        # can be done by converting the list of tuples (which is basically a dict) into a dict
+        # and then just yoinking the keys
+        featureList = dict(featuresOdds[:100]).keys()
 
+        return featureList
 
-
-
-        return featuresOdds
+        #return featuresOdds
