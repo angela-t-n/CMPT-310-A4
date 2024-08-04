@@ -93,8 +93,6 @@ class MiraClassifier:
         cGrid.sort(reverse=True)
         bestParams = cGrid[0]
 
-        allCGridScores = []
-
         for currentCVal in cGrid:
             # firstly, we need to 0 out the self.weights
             weights = {}
@@ -103,10 +101,10 @@ class MiraClassifier:
 
             # once we have empty weights, we can then proceed to 
             # iterate through as many iterations as needed per cGrid?
-            for i in range(self.max_iterations):
+            for _ in range(self.max_iterations):
                 # and then for every iteration, we need to go through the training data
                 # similar in perceptron
-                for j in range(len(trainingData)):
+                for _ in range(len(trainingData)):
                     # for each piece of training data, we need to find the feature for it
                     f = trainingData[i]
                     y = trainingLabels[i]
@@ -135,6 +133,19 @@ class MiraClassifier:
                         # now we can update the weights
                         weights[y] += backwards_r * f
                         weights[y_prime] -= backwards_r * f
+
+            # once the iteration is done, we can update self.weight
+            self.weights = weights
+
+            # now that the iteration is done, we can then compare it with some predictions
+            # made in the validationData set
+
+            # "for each C and choose the C with the highest validation accuracy"
+            # "Evaluate accuracy, on the held-out validation set"
+            # "In case of ties, prefer the lowest value of C"
+
+            predictionFromValidation = self.classify(validationData)
+            
 
 
 
