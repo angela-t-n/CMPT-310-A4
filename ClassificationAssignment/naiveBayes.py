@@ -89,6 +89,7 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
             "*** Y OUR CODE HERE to complete populating commonPrior, commonCounts, and commonConditionalProb ***"
             #util.raiseNotDefined()
 
+            '''
             # basically referring to the lecture slide for this one
             # there's two things we need i think:
                 # estimation of P(label), how often does each label occur
@@ -121,10 +122,7 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
 
                 # collectively called parameters, and denoted as theta, and are typically from training data counts
                 # so if theta appears, i know what to do i guess???
-
-
-
-
+            '''
             
             # basically this is the part 1 portion
 
@@ -178,11 +176,17 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
                     #util.raiseNotDefined()
 
                     # just chuck an extra k times to it!
-                    counts[(feat, label)] += k
+                    # NEEDS TO BE 2*k, k times for the presence and another k times for the lack of
+                    # idk that's what some blog said when simplying it
+                    # i guess that's also what |X| is in this case, presence and no presence?
+                    counts[(feat, label)] += 2*k
 
                     # this one uses the lapace for conditionals on slide 44
                     # just gonna overwrite the work done earlier lol
-                    conditionalProb[(feat, label)] = (commonConditionalProb[(feat, label)] + k) / (commonCounts[(feat, label)] + k)
+                    #conditionalProb[(feat, label)] = (commonConditionalProb[(feat, label)] + k) / (commonCounts[(feat, label)] + 2*k)
+
+                    # OH CUZ IT NORMALIZES IT LATER FHSDIOFSIOFIOJSD I DON'T NEED THAT
+                    conditionalProb[(feat, label)] += k
 
 
             #i guess now the following code is supposed to normalize it?
@@ -209,6 +213,9 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
 
         self.prior, self.conditionalProb, self.k = bestParams
         print("Best Performance on validation set for k=%f: (%.1f%%)" % (self.k, 100.0 * bestAccuracyCount / len(validationLabels)))
+
+
+
 
 
 
@@ -255,21 +262,20 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
 
             # essentially, for every label
             # we are estimating the log probability, and storing it in the log-joint counter
-            estimateOfLog = 0
-            for f in self.features:
+            for f, val in datum.items():
+                estimateOfLog = 0
+
                 # check our datum for negatives, since we can't take the log of a negative value
-                if datum[f] > 0:
+                if val > 0:
                     # positive value, so we can just use it
                     estimateOfLog = math.log(self.conditionalProb[(f,label)])
                 else:
                     # negtive value, take the compliment and use that in our calculations that instead
                     estimateOfLog = math.log(1 - self.conditionalProb[(f,label)])
 
-                # don't forget the probability over that label as well
-                estimateOfLog += math.log(self.prior[label])
-
-                # store the log estimate into the logJoint for this label
-                logJoint[label] = estimateOfLog
+                # once done, store the estimate into the array
+                # MUST be += because we need to accumulate it for that label
+                logJoint[label] += estimateOfLog
 
         # returns a list of log estimates for every valid label
         return logJoint
@@ -310,7 +316,8 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         # and making a list of just the keys
         # can be done by converting the list of tuples (which is basically a dict) into a dict
         # and then just yoinking the keys
-        featureList = dict(featuresOdds[:100]).keys()
+        featureList = dict(featuresOdds[:100])
+        featureList = featureList.keys()
 
         return featureList
 
