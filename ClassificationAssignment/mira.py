@@ -64,12 +64,82 @@ class MiraClassifier:
         datum is a counter from features to values for those features
         representing a vector of values.
         """
+        "*** YOUR CODE HERE ***"
+        #util.raiseNotDefined()
 
+        # It seems to kinda start off similarish to perceptron where it applies the formula:
+        # y′ = arg max_y’’ score(f, y′′)
+        # but instead of scoring it up, they're just pairs of (f, y′′)?
+        # and then find the max y′′
+
+        # then, we compare this y′ to y, similar to the previous one
+        # but instead of just adding or subtracting f from our weight vectors,
+        # we instead need to take it by a variable step size of τ
+        # This gives us the formula: 
+        # wy = wy + τf
+        # wy' = wy' - τf
+
+        # τ in this case is >= 0
+        # and should be a value that minimizes the distance between the weight for label c in cgrid of:
+        # min_w'(0.5 * ∑_c ||{ w'_c  -  w_c}||2_2)
+        # (I couldn't copypaste the formula in here...)
+
+        # and then just whatever the rest of the PDF is saying
+        # τ must also be capped by the minimum of whatever the
+        # previous formula was, and a positive constant of C
+
+        # prof provided
         bestAccuracyCount = -1  # best accuracy so far on validation set
         cGrid.sort(reverse=True)
         bestParams = cGrid[0]
-        "*** YOUR CODE HERE ***"
-        #util.raiseNotDefined()
+
+        allCGridScores = []
+
+        for currentCVal in cGrid:
+            # firstly, we need to 0 out the self.weights
+            weights = {}
+            for label in self.legalLabels:
+                weights[label] = util.Counter()
+
+            # once we have empty weights, we can then proceed to 
+            # iterate through as many iterations as needed per cGrid?
+            for i in range(self.max_iterations):
+                # and then for every iteration, we need to go through the training data
+                # similar in perceptron
+                for j in range(len(trainingData)):
+                    # for each piece of training data, we need to find the feature for it
+                    f = trainingData[i]
+                    y = trainingLabels[i]
+
+                    # calculate y' using the sameish technique as perceptron
+                    # classify() should return a list of scores
+                    guessedScore = self.classify([trainingData[i]])
+                    # get the max score to determine y'
+                    y_prime = max(guessedScore)
+
+                    # check if y' != y
+                    if y_prime != y:
+                        # if that's the case, now we actually need to calculate backwards r
+                        # τ = min(C, ( ((w_y' - w_y) * f + 1) / (2 * f^2) )
+
+                        weightYPrime = weights[y_prime]
+                        weightY = weights[y]
+                        
+                        numerator = ((weightYPrime - weightY)) * f + 1.0
+                        denom = (2.0 * (f * f))
+
+                        eq = numerator / denom
+
+                        backwards_r = min(currentCVal, eq)
+
+                        # now we can update the weights
+                        weights[y] += backwards_r * f
+                        weights[y_prime] -= backwards_r * f
+
+
+
+
+
 
 
         print("finished training. Best cGrid param = ", bestParams)
