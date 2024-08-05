@@ -262,6 +262,7 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
 
             # essentially, for every label
             # we are estimating the log probability, and storing it in the log-joint counter
+
             for f, val in datum.items():
                 estimateOfLog = 0
 
@@ -276,6 +277,9 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
                 # once done, store the estimate into the array
                 # MUST be += because we need to accumulate it for that label
                 logJoint[label] += estimateOfLog
+            
+            #oh apparently we need to add the probability of the label as well oops
+            logJoint[label] += math.log(self.prior[label])
 
         # returns a list of log estimates for every valid label
         return logJoint
