@@ -75,14 +75,6 @@ def enhancedFeatureExtractorDigit(datum):
         # cuz some of them have patterns where like 1 is just kinda like a sausage, sliced up
         # 8 have gaps in the middle if sliced
         # etc...
-    
-    # maybe another silly one would be to test the strength of each pixel to it's neighbours (top and left neighbour only)?
-    # 0 0 0
-    # 1 2 1
-    # 0 1 0
-    # 2 would be chonky score cuz it's bigger
-    # 1 would have a slightly less score cuz it's bigger than 1 but not the 0's to the left of it
-    # inspiration? minecraft light levels LOL
 
     """
     features = basicFeatureExtractorDigit(datum)
@@ -291,39 +283,10 @@ def enhancedFeatureExtractorDigit(datum):
         rowSum += countPixelPerCol[y]
 
 
-    # maybe another silly one would be to test the strength of each pixel to it's neighbours (top and left neighbour only)?
-    # for example:
-    # 0
-    # 1
-    # 2
-    # 0
 
-    # the 2 would have a higher score as it is greater than the ones around it
-    # and because it's the highest values (from when i printed out the entire datum thing)
-    # meanwhile 0 is lower
-    for x in range(1, DIGIT_DATUM_WIDTH):
-        for y in range(1, DIGIT_DATUM_HEIGHT):
-            pixelLabel = f"currentPix ({x}, {y})"
-            features[pixelLabel] = 0
 
-            # if this pixel is greater than the pixels directly beside of it
-            leftx = x - 1
-            if leftx > 0:
-                if pixels[x][y] > pixels[leftx][y]:
-                    features[pixelLabel] += 1
-                    
 
-            # if this pixel is greater than the pixels directly on top of it
-            topy = y - 1
-            if topy > 0:
-                if pixels[x][y] > pixels[x][topy]:
-                    features[pixelLabel] += 1
-
-            # adding bottom and right broke my code so i got rid of it. top and left are good enough i guess!
-            # since afterall the grid i from like
-            # top left corner to bottom right corner
-            # on a screen so ya
-            
+    
     
 
     return features
